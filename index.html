@@ -290,52 +290,19 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Noto
 
 <script>
 // ──────────────────────────────────────────────
-// 설정: Apps Script 웹앱 URL
-// 배포 후 아래 값을 교체하거나, 앱 내 배너에서 입력하세요
+// ✅ Apps Script 웹앱 URL — 여기에 본인 URL 입력
 // ──────────────────────────────────────────────
-const API_URL_KEY = 'rf_api_url';
-let API_URL = 'https://script.google.com/macros/s/AKfycbwI_rAxkIb25MrVbX6HCAuj9rb28bPlX8fahqCJ2JO9I_CCXHmC4fbaTvvcqyH7YJDz/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwI_rAxkIb25MrVbX6HCAuj9rb28bP1X8fahqCJ2J09I_CCXHmC4fbaTvvcqyH7YJDz/exec';
 
-let equipData   = {};  // { id: equipObj }
+let equipData   = {};
 let currentId   = null;
-let screenStack = [];  // 뒤로가기 스택
-
-// ── 초기화 ─────────────────────────────────
-// 샘플 데이터 (API 미연결 시 폴백 / 첫 화면 렌더링용)
-const SAMPLE_DATA = {
-  ups1:  { id:'ups1',  name:'UPS 분전반1',   model:'EATON 9PX 10K',                 installDate:'2021-03-15', assetNo:'AST-2021-0031', maker:'EATON',   lastInspect:'2024-11-20', nextInspect:'2025-05-20', cycle:'분기 1회', status:'정상',    statusClass:'badge-ok',   icon:'🔋', iconClass:'icon-ups'  },
-  ups2:  { id:'ups2',  name:'UPS 분전반2',   model:'EATON 9PX 10K',                 installDate:'2021-03-15', assetNo:'AST-2021-0032', maker:'EATON',   lastInspect:'2024-11-20', nextInspect:'2025-05-20', cycle:'분기 1회', status:'정상',    statusClass:'badge-ok',   icon:'🔋', iconClass:'icon-ups'  },
-  ac1:   { id:'ac1',  name:'RF실 냉방기1', model:'Samsung DVM S AM160AXVBGR', installDate:'2020-07-01', assetNo:'AST-2020-0158', maker:'삼성전자', lastInspect:'2025-01-10', nextInspect:'2025-07-10', cycle:'반기 1회', status:'정상',    statusClass:'badge-ok',   icon:'❄️', iconClass:'icon-ac'   },
-  ac2:   { id:'ac2',  name:'RF실 냉방기2', model:'Samsung DVM S AM160AXVBGR', installDate:'2020-07-01', assetNo:'AST-2020-0159', maker:'삼성전자', lastInspect:'2024-09-05', nextInspect:'2025-03-05', cycle:'반기 1회', status:'점검 필요', statusClass:'badge-warn', icon:'❄️', iconClass:'icon-ac'   },
-  wall1: { id:'wall1', name:'벽부 분전반1',  model:'LS산전 MNB-100',               installDate:'2019-05-10', assetNo:'AST-2019-0044', maker:'LS산전', lastInspect:'2025-01-15', nextInspect:'2026-01-15', cycle:'연 1회',   status:'정상',    statusClass:'badge-ok',   icon:'⚡', iconClass:'icon-wall' },
-  wall2: { id:'wall2', name:'벽부 분전반2',  model:'LS산전 MNB-60',                installDate:'2019-05-10', assetNo:'AST-2019-0045', maker:'LS산전', lastInspect:'2025-01-15', nextInspect:'2026-01-15', cycle:'연 1회',   status:'정상',    statusClass:'badge-ok',   icon:'⚡', iconClass:'icon-wall' },
-};
+let screenStack = [];
 
 window.addEventListener('DOMContentLoaded', () => {
-  // QR 파라미터 처리
   const id = new URLSearchParams(window.location.search).get('id');
   if (id) window._qrId = id;
-
-  if (!API_URL) {
-    // API 미연결: 샘플 데이터로 평면도·목록 렌더링 후 배너 표시
-    equipData = { ...SAMPLE_DATA };
-    renderFloorPlan();
-    renderEquipList();
-    document.getElementById('api-banner').style.display = 'flex';
-    hideOverlay();
-  } else {
-    loadEquipList();
-  }
-});
-
-function saveApiUrl() {
-  const val = document.getElementById('api-url-input').value.trim();
-  if (!val) { alert('URL을 입력해주세요'); return; }
-  API_URL = val;
-  localStorage.setItem(API_URL_KEY, val);
-  document.getElementById('api-banner').style.display = 'none';
   loadEquipList();
-}
+});
 
 // ── 데이터 로드 ────────────────────────────
 async function loadEquipList() {
